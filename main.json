@@ -1,0 +1,211 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "app_mention"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C098N3RN80M",
+          "mode": "list",
+          "cachedResultName": "gemini"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b9b52222-d077-4d8f-9d58-f3dad8d0233c",
+      "name": "Slack Trigger",
+      "webhookId": "710817b8-25aa-43e0-99cc-f2ad6c293531",
+      "credentials": {
+        "slackApi": {
+          "id": "FuM3h5QpOj8e5WXj",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ \"【核心原则：效率优先】\\n你的首要目标是快速、准确地回答用户问题。只有当你自己的内部知识库【绝对】无法回答时，才应该考虑使用工具。\\n\\n【工具使用指南】\\n1. **判断时机**: 请严格根据以下标准，判断问题是否【必须】使用工具：\\n   - **不需要工具的情况**：普通聊天、问候 (例如: 你好)、创意写作 (例如: 写首诗)、通用知识和历史 (例如: 法国首都是哪里)、数学计算等。\\n   - **必须使用工具的情况**：查询实时信息 (例如: 今天天气、新闻、股价)、查询今天的具体日期、查询 2023 年之后发生的特定事件或信息。\\n\\n2. **执行规则**: 如果你确定需要使用 'tavily-search' 工具，请继续遵守以下规则：\\n   - **英文查询**: 查询(query)必须是简单的英文关键词。\\n   - **忠于结果**: 答案必须严格依据工具返回的数据。\\n   - **诚实汇报**: 如果结果不清晰，直接说明，不要猜测。\\n\\n【用户问题】\\n\" + $json.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "96a8edf3-8b00-4256-b3ff-fde357fe65a8",
+      "name": "AI Agent",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        208,
+        208
+      ],
+      "id": "1700dfbf-10e2-40bf-a7c7-a30370a31605",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "D05k5t2EPuMvRdcR",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C098N3RN80M",
+          "mode": "list",
+          "cachedResultName": "gemini"
+        },
+        "text": "={{ $json.output }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "mrkdwn": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        640,
+        0
+      ],
+      "id": "69aabbe1-940a-4342-9bd8-1c68701ab949",
+      "name": "Send a message",
+      "webhookId": "a506130d-3835-4894-973a-2918d2eeba26",
+      "credentials": {
+        "slackApi": {
+          "id": "FuM3h5QpOj8e5WXj",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeTool",
+        "toolName": "={{ $fromAI(\"tools\")}}",
+        "toolParameters": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tool_Parameters', ``, 'json') }}"
+      },
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        544,
+        208
+      ],
+      "id": "6a85b7d4-2407-4a26-839a-336ad6836ac8",
+      "name": "MCP Client Tavily",
+      "credentials": {
+        "mcpClientApi": {
+          "id": "QvxEPwy93WsDZ7XG",
+          "name": "MCP Client Tavily"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "A tool for looking up real-time information online. To use it, you MUST call the function with the exact name 'tavily-search' or 'tavily-extract' . Do not use 'search' or 'Tavily' as the tool name."
+      },
+      "type": "n8n-nodes-mcp.mcpClientTool",
+      "typeVersion": 1,
+      "position": [
+        384,
+        208
+      ],
+      "id": "223b91e4-f08c-431a-bc84-68cec4f6f362",
+      "name": "MCP Client List Tools",
+      "notesInFlow": false,
+      "credentials": {
+        "mcpClientApi": {
+          "id": "QvxEPwy93WsDZ7XG",
+          "name": "MCP Client Tavily"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MCP Client List Tools": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "039677eae1934e34adb677b6dbf9a030512c640242261936df7e2f27af740254"
+  }
+}
