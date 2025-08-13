@@ -2,7 +2,7 @@
 
 这是一个基于n8n平台构建的Slack机器人工作流，它使用Google Gemini AI模型来回答用户在Slack中提出的问题。
 
-![alt text](<Screenshot 2025-08-14 at 07.00.55.png>)
+![alt text](<Preview_workflow.png>)
 
 ## 功能特点
 
